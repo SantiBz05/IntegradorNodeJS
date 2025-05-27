@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "notebook",
+    "price": 750000,
+    "color": "negro"
+  },
+  {
+    "id": 2,
+    "name": "auriculares",
+    "price": 125000,
+    "color": "blanco"
+  },
+  {
+    "id": 3,
+    "name": "monitor",
+    "price": 275000,
+    "color": "gris"
+  },
+  {
+    "id": 4,
+    "name": "kit volante",
+    "price": 860000,
+    "color": "negro y azul"
+  },
+  {
+    "id": 5,
+    "name": "torta deliciosa",
+    "price": 999999,
+    "color": "sabrosa"
+  }
+]
