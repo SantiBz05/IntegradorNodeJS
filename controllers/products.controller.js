@@ -2,6 +2,8 @@ const fs = require('fs')
 const path = require('path')
 const filePath = path.join(__dirname, '../data/products.json')
 
+const { Product } = require('../models')
+
 const readProducts = () => {
   const data = fs.readFileSync(filePath, 'utf8')
   return JSON.parse(data)
@@ -12,10 +14,20 @@ let products = readProducts()
 const writeProducts = (products) => {
   fs.writeFileSync(filePath, JSON.stringify(products, null, 2))
 }
+
 // GET ALL
-const getProducts = (req, res) => {
-  res.json({ data: products, status: 200, message: 'Productos obtenidos de manera exitosa' })
+const getProducts = async (req, res) => {
+  try {
+      const products = await Product.findAll()
+      res.status(200).json({ data: products, message: 'Productos obtenidos de manera exitosa' })      
+  }catch (error) {
+      res.status(500).json({ message: 'Error al obtener prodcutos' })
+  }
 }
+
+// const getProducts = (req, res) => {
+//   res.json({ data: products, status: 200, message: 'Productos obtenidos de manera exitosa' })
+// }
 
 // GET by Id
 const getProductById = (req, res) => {
