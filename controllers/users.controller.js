@@ -1,59 +1,94 @@
-const fs = require('fs')
-const path = require('path')
-const filePath = path.join(__dirname, '../data/users.json')
-
-const readUsers = () => {
-  const data = fs.readFileSync(filePath, 'utf8')
-  return JSON.parse(data)
-}
-
-let users = readUsers()
-
-const writeUser = (users) => {
-  fs.writeFileSync(filePath, JSON.stringify(users, null, 2))
-}
+const { Users } = require('../models');
 
 // GET ALL
-const getUsers = (req, res) => {
-  res.json({ data: users, status: 200, message: 'Usuarios obtenidos de manera exitosa' })
+const getUsers = async (req, res) => {
+  try {
+    const users = await Users.findAll();
+    res.status(200).json({ data: users, message: 'Usuarios obtenidos de manera exitosa' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener usuarios' });
+  }
 }
 
-// GET by Id
-const getUserById = (req, res) => {
-  const user = users.find(item => item.id === parseInt(req.params.id))
-  if (!user) return res.json({ status: 404, message: 'Usuario no encontrado' })
-  res.json({ data: user, status: 200, message: 'Usuario encontrado correctamente' })
+// GET by ID
+const getUserById = async (req, res) => {
+  try {
+    const user = await Users.findByPk(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    res.status(200).json({ data: user, message: 'Usuario encontrado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al buscar el usuario' });
+  }
 }
 
 // POST
-const createUser = (req, res) => {
-  const newUser = req.body
-  newUser.id = users.length + 1
-  users.push(newUser)
-  writeUser(users)
-  res.json({ data: newUser, status: 201, message: 'Usuario creado exitosamente' })
+const createUser = async (req, res) => {
+  const { name, lastname, email, age } = req.body;
+  try {
+    if (!name || !lastname || !email || !age) {
+      return res.status(400).json({ message: 'Faltan datos obligatorios' });
+    }
+
+    const newUser = await Users.create({ name, lastname, email, age });
+    res.status(201).json({ data: newUser, message: 'Usuario creado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'No se creó el usuario' });
+  }
 }
 
 // PUT
-const updateUser = (req, res) => {
-  const user = users.find(item => item.id === parseInt(req.params.id))
-  if (!user) return res.json({ status: 404, message: 'Usuario no encontrado' })
-  const { name, lastname, email, age } = req.body
-  user.name = name || user.name
-  user.lastname = lastname || user.lastname
-  user.email = email || user.email
-  user.age = age || user.age
-  writeUser(users)
-  res.json({ data: user, status: 200, message: 'Usuario editado correctamente' })
+const updateUser = async (req, res) => {
+  try {
+    const user = await Users.findByPk(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    const { name, lastname, email, age } = req.body;
+
+    const updatedData = {
+      name: name || user.name,
+      lastname: lastname || user.lastname,
+      email: email || user.email,
+      age: age || user.age
+    };
+
+    await Users.update(updatedData, {
+      where: { id: req.params.id }
+    });
+
+    const updatedUser = await Users.findByPk(req.params.id);
+
+    res.status(200).json({ data: updatedUser, message: 'Usuario editado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'No se editó el usuario' });
+  }
 }
 
 // DELETE
-const deleteUser = (req, res) => {
-  const user = users.find(item => item.id === parseInt(req.params.id))
-  if (!user) return res.json({ status: 404, message: 'Usuario no encontrado' })
-  users = users.filter(item => item.id !== user.id)
-  writeUser(users)
-  res.json({ data: user, status: 200, message: 'Usuario eliminado correctamente' })
+const deleteUser = async (req, res) => {
+  try {
+    const user = await Users.findByPk(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    await Users.destroy({ where: { id: req.params.id } });
+
+    res.status(200).json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'No se eliminó el usuario' });
+  }
 }
 
 module.exports = {
@@ -62,4 +97,4 @@ module.exports = {
   createUser,
   updateUser,
   deleteUser,
-}
+};

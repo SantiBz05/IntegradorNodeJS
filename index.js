@@ -13,6 +13,9 @@ app.use('/usuarios', userRouter);
 const productRouter = require('./routes/prodcuts.routes');
 app.use('/productos', productRouter);
 
+const salesRouter = require('./routes/sales.routes');
+app.use('/ventas', salesRouter);
+
 app.listen(port, () => {
   console.log(`Servidor escuchando en localhost: ${port}`);
 });
