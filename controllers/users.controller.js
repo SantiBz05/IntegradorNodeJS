@@ -2,13 +2,13 @@ const { Users } = require('../models');
 
 // GET ALL
 const getUsers = async (req, res) => {
-  try {
-    const users = await Users.findAll();
-    res.status(200).json({ data: users, message: 'Usuarios obtenidos de manera exitosa' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener usuarios' });
-  }
-}
+    try {
+        const users = await Users.findAll();
+        res.json({ status: 200, data: users });
+    } catch (error) {
+        res.status(500).json({ status: 500, message: 'Error al obtener usuarios', error: error.message });
+    }
+};
 
 // GET by ID
 const getUserById = async (req, res) => {
@@ -18,7 +18,6 @@ const getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
-
     res.status(200).json({ data: user, message: 'Usuario encontrado correctamente' });
   } catch (error) {
     console.error(error);
@@ -28,13 +27,13 @@ const getUserById = async (req, res) => {
 
 // POST
 const createUser = async (req, res) => {
-  const { name, lastname, email, age } = req.body;
+  const { name, lastname, email, age, password, role } = req.body;
   try {
-    if (!name || !lastname || !email || !age) {
+    if (!name || !lastname || !email || !age || !password || !role) {
       return res.status(400).json({ message: 'Faltan datos obligatorios' });
     }
 
-    const newUser = await Users.create({ name, lastname, email, age });
+    const newUser = await Users.create({ name, lastname, email, age, password, role });
     res.status(201).json({ data: newUser, message: 'Usuario creado correctamente' });
   } catch (error) {
     console.error(error);
@@ -51,13 +50,15 @@ const updateUser = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
-    const { name, lastname, email, age } = req.body;
+    const { name, lastname, email, age, password, role } = req.body;
 
     const updatedData = {
       name: name || user.name,
       lastname: lastname || user.lastname,
       email: email || user.email,
-      age: age || user.age
+      age: age || user.age,
+      password: password || user.password,
+      role: role || user.role
     };
 
     await Users.update(updatedData, {

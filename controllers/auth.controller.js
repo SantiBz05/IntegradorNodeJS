@@ -52,4 +52,32 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await Users.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // TODO: Implement password reset token generation and email sending
+        res.json({ message: 'Instrucciones de recuperación enviadas al email' });
+    } catch (error) {
+        res.status(500).json({ status: 500, message: 'Error en recuperación de contraseña', error: error.message });
+    }
+};
+
+const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
+
+    try {
+        // TODO: Implement token validation and password reset
+        // For now, just return a placeholder response
+        res.json({ message: 'Contraseña restablecida exitosamente' });
+    } catch (error) {
+        res.status(500).json({ status: 500, message: 'Error al restablecer contraseña', error: error.message });
+    }
+};
+
+module.exports = { register, login, forgotPassword, resetPassword };
